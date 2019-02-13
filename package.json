@@ -1,0 +1,22 @@
+{
+  "name": "aarieats",
+  "version": "1.0.0",
+  "description": "Restful aarieats",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "RESTFUL"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^1.18.10"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+    "express-myconnection": "^1.0.4",
+    "mysql": "^2.16.0"
+  }
+}
