@@ -110,6 +110,58 @@ exports.registerVendor = function(req,res) {
   });
 }
 
+exports.login = function(req,res) {
+  req.getConnection(function(err,connection){
+	var email = req.body.email;
+	var password = req.body.password;
+	connection.query('SELECT * FROM users WHERE Email = ?',email,function(err,result){
+				if(err) throw err;
+				if(!result.length){
+					var data = {
+            status : "No such user found"
+          }
+          sendFailure(res,401,data);
+				} else if(!(result[0].Password == password)) {
+				    	var data = {
+               status:"password_is_incorrect"
+						   }
+            sendFailure(res,401,data);
+				  } else {
+					 var data = {
+                status: "login_successfull"
+						}
+            sendSuccess(res,data);
+					}
+			});
+	});
+};
+
+exports.vendorlogin = function(req,res) {
+  req.getConnection(function(err,connection){
+	var email = req.body.email;
+	var password = req.body.password;
+	connection.query('SELECT * FROM vendors WHERE email = ?',email,function(err,result){
+				if(err) throw err;
+				if(!result.length){
+					var data = {
+            status : "No such user found"
+          }
+          sendFailure(res,401,data);
+				} else if(!(result[0].Password == password)) {
+				    	var data = {
+               status:"password_is_incorrect"
+						   }
+            sendFailure(res,401,data);
+				  } else {
+					 var data = {
+                status: "login_successfull"
+						}
+            sendSuccess(res,data);
+					}
+			});
+	});
+};
+
 exports.getallvendors = function(req,res) {
   req.getConnection(function(err,connection){
     var sql = "SELECT * FROM vendors";
