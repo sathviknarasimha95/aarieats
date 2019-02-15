@@ -74,3 +74,33 @@ exports.validateLoginVendor = [
     }
   }
 ];
+
+exports.validateAddProducts = [
+  check('email').isEmail().exists(),
+  check('productId').exists(),
+  check('productName').exists(),
+  check('productType').exists(),
+  check('productUnit').exists(),
+  check('productPrice').exists(),
+  function(req,res,next) {
+    console.log("camehere");
+    var errors = validationResult(req);
+    if(!errors.isEmpty()) {
+      sendFailure(res,422,errors.array());
+    } else {
+      next();
+    }
+  }
+];
+
+exports.validateGetProducts = [
+  check('vendorEmail').isEmail().exists(),
+  function(req,res,next) {
+    var errors = validationResult(req);
+    if(!errors.isEmpty()) {
+      sendFailure(res,422,errors.array());
+    } else {
+      next();
+    }
+  }
+]

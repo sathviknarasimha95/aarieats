@@ -27,6 +27,20 @@ module.exports = function(app) {
       controller.registerUser
     );
 
+  app
+    .route('/addproducts')
+    .post(
+      validator.validateAddProducts,
+      controller.addProducts
+    );
+
+  app
+    .route('/getproducts')
+    .get(
+      validator.validateGetProducts,
+      controller.getProducts
+    );
+
 
   app.route('/registervendor')
     .post(

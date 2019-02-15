@@ -171,3 +171,57 @@ exports.getallvendors = function(req,res) {
     })
   });
 }
+
+exports.addProducts = function(req,res) {
+  req.getConnection(function(err,connection){
+    var email = req.body.email;
+    var sql = "SELECT VendorId From vendors WHERE email = ?";
+    connection.query(sql,email,function(err,rows){
+      if(err) throw err;
+      var vendorId = rows[0].VendorId;
+      console.log(vendorId);
+      var post = {
+        //generate the product id in server itself
+        ProductId : req.body.productId,
+        ProductName : req.body.productName,
+        ProductType : req.body.productType,
+        ProductUnit : req.body.productUnit,
+        ProductPrice : req.body.productPrice
+      };
+      var sql2 = "INSERT INTO products SET ?";
+      connection.query(sql2,post,(err,rows)=>{
+        if(err) sendFailure(res,500,err);
+        var post2 = {
+          VendorId : vendorId,
+          ProductId : req.body.productId
+        };
+        var sql3 = "INSERT INTO productvendor SET ?";
+        connection.query(sql3,post2,(err,rows)=>{
+          if(err) sendFailure(res,500,err);
+          sendSuccess(res,"success");
+        });
+      });
+    });
+  });
+}
+
+exports.getProducts = function(req,res) {
+  req.getConnection((err,connection)=>{
+    if(err) sendFailure(res,500,err);
+    var vendorEmail = req.body.vendorEmail;
+    var sql = "SELECT VendorId from vendors WHERE email = ?";
+    connection.query(sql,vendorEmail,(err,rows)=>{
+      if(err) sendFailure(res,500,err);
+      if(rows.length > 0) {
+        var vendorId = rows[0].VendorId;
+        var sql2 = "select products.ProductId,products.ProductName,products.ProductType,products.ProductUnit,products.ProductPrice from products JOIN productvendor ON products.ProductId = productvendor.ProductId WHERE VendorId ="+vendorId;
+        connection.query(sql2,vendorId,(err,rows)=>{
+          if(err) sendFailure(res,500,err);
+          sendSuccess(res,rows);
+        })
+      } else {
+        sendFailure(res,404,"Email Not Exist");
+      }
+    })
+  });
+}
