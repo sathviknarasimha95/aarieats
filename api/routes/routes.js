@@ -1,12 +1,20 @@
 module.exports = function(app) {
   var controller = require('../controllers/controller');
+  var validator = require('../validators/validator');
 
   // aarieats Routes
   app.route('/loginuser')
-    .post(controller.login);
+    .post(
+      validator.validateLoginUser,
+      controller.login
+    );
 
   app.route('/loginvendor')
-    .post(controller.vendorlogin);
+    .post(
+      validator.validateLoginVendor,
+      controller.vendorlogin
+    );
+
   app.route('/getusers')
     .get(controller.getallusers);
 
@@ -14,6 +22,7 @@ module.exports = function(app) {
   app
     .route('/registeruser')
     .post(
+      validator.validateRegisterUser,
       controller.checkExistUser,
       controller.registerUser
     );
@@ -21,6 +30,7 @@ module.exports = function(app) {
 
   app.route('/registervendor')
     .post(
+      validator.validateRegisterVendor,
       controller.checkExistVendor,
       controller.registerVendor
     );
