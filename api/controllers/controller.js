@@ -225,3 +225,89 @@ exports.getProducts = function(req,res) {
     })
   });
 }
+
+exports.getOrderUser = function(req,res) {
+  req.getConnection((err,connection)=>{
+    if(err) sendFailure(res,500,err);
+    var email = req.body.email;
+    var sql = "SELECT UserId from users WHERE Email = ?";
+    connection.query(sql,email,(err,rows)=>{
+      if(err) sendFailure(res,500,err);
+      if(rows.length > 0) {
+        var UserId = rows[0].UserId;
+        var sql2 = "SELECT * FROM orders WHERE userId = ?";
+        connection.query(sql2,UserId,(err,rows)=>{
+          if(err) sendFailure(res,500,err);
+          sendSuccess(res,rows);
+        });
+      } else {
+          sendFailure(res,404,"Email Not Exist");
+        }
+      });
+    });
+}
+
+exports.getOrderDetailsUser = function(req,res) {
+  req.getConnection((err,connection)=>{
+    if(err) sendFailure(res,500,err);
+    var email = req.body.email;
+    var orderId = req.body.orderId;
+    var sql = "SELECT UserId FROM users WHERE Email = ?";
+    connection.query(sql,email,(err,rows)=>{
+      if(err) sendFailure(res,500,err);
+      if(rows.length > 0) {
+        var userId = rows[0].UserId;
+        var sql2 = "select orders.OrderId,order_products.ProductId,products.ProductName from ((( orders INNER JOIN users On orders.UserId = users.UserId) join order_products on orders.OrderId = order_products.OrderId) join products ON order_products.ProductId = products.ProductId) where orders.OrderId = ? AND orders.UserId = ?";
+        connection.query(sql2,[orderId,userId],(err,rows)=>{
+          if(err) sendFailure(res,500,err);
+          sendSuccess(res,rows);
+        });
+      } else {
+        sendFailure(res,404,"Email Not Exist");
+      }
+    });
+  });
+}
+
+exports.getOrderVendor = function(req,res) {
+  req.getConnection((err,connection)=>{
+    if(err) sendFailure(res,500,err);
+    var email = req.body.email;
+    var sql = "SELECT VendorId from vendors WHERE email = ?";
+    connection.query(sql,email,(err,rows)=>{
+      if(err) sendFailure(res,500,err);
+      if(rows.length > 0) {
+        var vendorId = rows[0].VendorId;
+        var sql2 = "select * from orders WHERE VendorId = ?";
+        connection.query(sql2,vendorId,(err,rows)=>{
+          if(err) sendFailure(res,500,err);
+          sendSuccess(res,rows);
+        })
+      } else {
+        sendFailure(res,404,"Email Not Exist");
+      }
+    });
+  });
+}
+
+exports.getOrderDetailsVendor = function(req,res) {
+  req.getConnection((err,connection)=>{
+    if(err) sendFailure(res,500,err);
+    var email = req.body.email;
+    var orderId = req.body.orderId;
+    var sql = "SELECT VendorId FROM vendors WHERE email = ?";
+    connection.query(sql,email,(err,rows)=>{
+      if(err) sendFailure(res,500,err);
+      if(rows.length > 0) {
+        var vendorId = rows[0].VendorId;
+        var sql2 = "select orders.OrderId,order_products.ProductId,products.ProductName from ((( orders INNER JOIN users On orders.UserId = users.UserId) join order_products on orders.OrderId = order_products.OrderId) join products ON order_products.ProductId = products.ProductId) where orders.OrderId = ? AND orders.VendorId = ?";
+        connection.query(sql2,[orderId,vendorId],(err,rows)=>{
+          if(err) sendFailure(res,500,err);
+          sendSuccess(res,rows);
+        });
+      } else {
+        sendFailure(res,404,"Email Not Exist");
+      }
+    });
+  });
+}

@@ -49,6 +49,24 @@ module.exports = function(app) {
       controller.registerVendor
     );
 
+  app.route('/getorderuser')
+    .get(
+      controller.getOrderUser
+    );
+  app.route('/getuserorderdetails')
+    .get(
+      controller.getOrderDetailsUser
+    );
+
+  app.route('/getordervendor')
+    .get(
+      controller.getOrderVendor
+    );
+
+  app.route('/getvendororderdetails')
+    .get(
+      controller.getOrderDetailsVendor
+    );
 
   app.route('/getvendors')
     .get(controller.getallvendors);
