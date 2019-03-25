@@ -1,5 +1,5 @@
 'use strict';
-
+const orderidaari = require('order-id')('aarieatsproject');
 function sendSuccess(res, data) {
   res.writeHead(200, { "Content-Type" : "json"});
   var output = { error: null, data: data };
@@ -168,6 +168,89 @@ exports.getallvendors = function(req,res) {
     connection.query(sql,function(err,rows){
       if(err) throw err;
       sendSuccess(res,rows);
+    })
+  });
+}
+
+exports.placeOrder = function(req,res) {
+  const orderid = require('order-id')('aarieatsproject');
+  req.getConnection(function(err,connection){
+    var jsonData = [];
+    var orderid = req.body.orderId;
+    var products = req.body.products;
+    for(var i = 0;i<req.body.products.length;i++) {
+      products[i].OrderId = orderid;
+      jsonData.push(products[i]);
+    }
+    var values = [];
+    for(var i=0;i<jsonData.length;i++) {
+      values.push([jsonData[i].ProductId,jsonData[i].Units,jsonData[i].Total,jsonData[i].OrderId]);
+    }
+    console.log(values);
+    var post = {
+      OrderId : orderid.generate(),
+      UserId : req.body.userId,
+      VendorId : req.body.vendorId
+    };
+    var sql1 = "INSERT INTO orders SET ?";
+    connection.query(sql1,post,function(err,rows){
+      if(err) sendFailure(res,500,err);
+      var sql2 = "INSERT INTO order_products(ProductId,Units,Total,OrderId) VALUES ?";
+      connection.query(sql2,[values],function(err,rows){
+        if(err) throw err;
+        var responseData = {
+          OrderId:req.body.orderId,
+          Status:"order success"
+        }
+        sendSuccess(res,responseData);
+      })
+    })
+  });
+}
+
+exports.placeOrder1 = function(req,res) {
+  req.getConnection(function(err,connection){
+    var userEmail = req.body.userEmail;
+    connection.query("SELECT UserId from users WHERE Email = ?",userEmail,function(err,rows){
+      if(err) sendFailure(res,500,err);
+      var userId = rows[0].UserId;
+      console.log(userId);
+      var vendorEmail = req.body.vendorEmail;
+      connection.query("SELECT VendorId From vendors WHERE email = ?",vendorEmail,function(err,rows){
+        if(err) sendFailure(res,500,err);
+        console.log(rows);
+        var vendorId = rows[0].VendorId;
+        var jsonData = [];
+        var orderid = orderidaari.generate();;
+        var products = req.body.products;
+        for(var i = 0;i<req.body.products.length;i++) {
+          products[i].OrderId = orderid;
+          jsonData.push(products[i]);
+        }
+        var values = [];
+        for(var i=0;i<jsonData.length;i++) {
+          values.push([jsonData[i].ProductId,jsonData[i].Units,jsonData[i].Total,jsonData[i].OrderId]);
+        }
+        console.log(values);
+        var post = {
+          OrderId : orderid,
+          UserId : userId,
+          VendorId : vendorId
+        };
+        var sql1 = "INSERT INTO orders SET ?";
+        connection.query(sql1,post,function(err,rows){
+          if(err) sendFailure(res,500,err);
+          var sql2 = "INSERT INTO order_products(ProductId,Units,Total,OrderId) VALUES ?";
+          connection.query(sql2,[values],function(err,rows){
+            if(err) sendFailure(res,500,err);
+            var responseData = {
+              OrderId:orderid,
+              Status:"order success"
+            }
+            sendSuccess(res,responseData);
+          });
+        });
+      });
     })
   });
 }

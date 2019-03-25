@@ -18,6 +18,8 @@ module.exports = function(app) {
   app.route('/getusers')
     .get(controller.getallusers);
 
+  app.route('/placeorder')
+    .post(controller.placeOrder1);
 
   app
     .route('/registeruser')
@@ -36,7 +38,7 @@ module.exports = function(app) {
 
   app
     .route('/getproducts')
-    .get(
+    .post(
       validator.validateGetProducts,
       controller.getProducts
     );
